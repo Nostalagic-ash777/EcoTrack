@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { User } from '../types';
 import { 
-  User, 
+  User as UserIcon //Renamed to UserIcon 
   Settings, 
   Bell, 
   Shield, 
@@ -72,7 +72,7 @@ const Profile: React.FC<ProfileProps> = ({ user, setUser }) => {
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-6">
             <div className="w-20 h-20 bg-white/20 rounded-full flex items-center justify-center">
-              <User className="w-10 h-10 text-white" />
+              <UserIcon className="w-10 h-10 text-white" />
             </div>
             <div>
               <h2 className="text-3xl font-bold mb-2">{user.name}</h2>
