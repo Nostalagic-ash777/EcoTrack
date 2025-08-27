@@ -22,10 +22,10 @@ const Profile: React.FC<ProfileProps> = ({ userInput, setUser }) => {
   const [activeSection, setActiveSection] = useState('profile');
   const [editMode, setEditMode] = useState(false);
   const [formData, setFormData] = useState({
-    name: user.name,
-    email: user.email,
-    location: user.location,
-    monthlyGoal: user.monthlyGoal
+    name: userInput.name,
+    email: userInput.email,
+    location: userInput.location,
+    monthlyGoal: userInput.monthlyGoal
   });
   const [notifications, setNotifications] = useState({
     push: true,
@@ -75,7 +75,7 @@ const Profile: React.FC<ProfileProps> = ({ userInput, setUser }) => {
               <UserIcon className="w-10 h-10 text-white" />
             </div>
             <div>
-              <h2 className="text-3xl font-bold mb-2">{user.name}</h2>
+              <h2 className="text-3xl font-bold mb-2">{userInput.name}</h2>
               <div className="flex items-center space-x-6 text-green-100">
                 <div className="flex items-center space-x-2">
                   <Award className="w-5 h-5" />
@@ -83,7 +83,7 @@ const Profile: React.FC<ProfileProps> = ({ userInput, setUser }) => {
                 </div>
                 <div className="flex items-center space-x-2">
                   <Target className="w-5 h-5" />
-                  <span>{user.currentStreak} day streak</span>
+                  <span>{userInput.currentStreak} day streak</span>
                 </div>
               </div>
             </div>
@@ -102,7 +102,7 @@ const Profile: React.FC<ProfileProps> = ({ userInput, setUser }) => {
       <div className="bg-white rounded-xl shadow-lg border border-gray-100 overflow-hidden">
         <div className="flex border-b border-gray-200">
           {[
-            { id: 'profile', label: 'Profile', icon: User },
+            { id: 'profile', label: 'Profile', icon: UserInput },
             { id: 'achievements', label: 'Achievements', icon: Award },
             { id: 'settings', label: 'Settings', icon: Settings }
           ].map((tab) => {
