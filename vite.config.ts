@@ -8,4 +8,4 @@ export default defineConfig({
     exclude: ['lucide-react'],
   },
 });
-npx update-browserslist-db@latest
+
