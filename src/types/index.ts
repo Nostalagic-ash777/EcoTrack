@@ -1,5 +1,4 @@
-import { User } from '../types';
-export interface User {
+export interface UserInput {
   id: string;
   name: string;
   email: string;
