@@ -102,7 +102,6 @@ We welcome contributions from developers passionate about environmental technolo
 
 ## 🏆 Recognition
 
-- 🥇 MumbaiHacks 2025 - Best Environmental Impact Award  
 - 🌟 Featured in TechCrunch Sustainability Spotlight  
 - 📰 Mentioned in MIT Technology Review Green Tech  
 
