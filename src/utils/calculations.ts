@@ -79,4 +79,4 @@ export function getTimeAgo(timestamp: string): string {
   } else {
     return `${Math.floor(diffInMinutes / 1440)} days ago`;
   }
-}</parameter>
+}
