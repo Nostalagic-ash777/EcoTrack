@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { Activity, User } from '../types';
 import { 
   FileText, 
   Download, 
@@ -10,34 +11,51 @@ import {
   Share
 } from 'lucide-react';
 
-const Reports: React.FC = () => {
+interface ReportsProps {
+  activities: Activity[];
+  user: User;
+}
+
+const Reports: React.FC<ReportsProps> = ({ activities, user }) => {
   const [selectedPeriod, setSelectedPeriod] = useState('month');
   const [selectedCategory, setSelectedCategory] = useState('all');
 
-  const reports = [
-    {
-      id: 1,
-      title: 'Monthly Carbon Footprint Report',
-      period: 'January 2025',
-      totalEmissions: 320,
-      reduction: 12,
-      categories: [
-        { name: 'Transportation', value: 145, percentage: 45 },
-        { name: 'Energy', value: 89, percentage: 28 },
-        { name: 'Food', value: 67, percentage: 21 },
-        { name: 'Waste', value: 19, percentage: 6 }
-      ],
-      insights: [
-        'Your transportation emissions decreased by 15% this month',
-        'Energy consumption was 8% lower than average',
-        'Food-related emissions increased by 5% due to dining out'
-      ]
-    }
+  // Calculate real data from activities
+  const calculateCategoryData = () => {
+    const categoryTotals = {
+      transportation: 0,
+      energy: 0,
+      food: 0,
+      waste: 0,
+      digital: 0
+    };
+    
+    activities.forEach(activity => {
+      categoryTotals[activity.category] += activity.emissions;
+    });
+    
+    const total = Object.values(categoryTotals).reduce((sum, val) => sum + val, 0);
+    
+    return Object.entries(categoryTotals).map(([name, value]) => ({
+      name: name.charAt(0).toUpperCase() + name.slice(1),
+      value: Math.round(value * 10) / 10,
+      percentage: total > 0 ? Math.round((value / total) * 100) : 0
+    }));
+  };
+
+  const categoryData = calculateCategoryData();
+  const totalEmissions = categoryData.reduce((sum, cat) => sum + cat.value, 0);
+
+  const insights = [
+    `You've logged ${activities.length} activities this month`,
+    `Your largest emission source is ${categoryData.sort((a, b) => b.value - a.value)[0]?.name || 'Transportation'}`,
+    `Total emissions: ${Math.round(totalEmissions * 10) / 10} kg CO₂`,
+    activities.length > 0 ? `Most recent activity: ${activities[0]?.type}` : 'No activities logged yet'
   ];
 
   const yearlyStats = {
-    totalEmissions: 3840,
-    averageMonthly: 320,
+    totalEmissions: Math.round(totalEmissions * 12),
+    averageMonthly: Math.round(totalEmissions * 10) / 10,
     bestMonth: { month: 'September', emissions: 280 },
     worstMonth: { month: 'December', emissions: 410 },
     yearlyReduction: 18
@@ -48,6 +66,26 @@ const Reports: React.FC = () => {
     { label: 'vs Global Average', value: '-28%', color: 'text-green-600' },
     { label: 'vs Your Goal', value: '+15%', color: 'text-red-600' }
   ];
+
+  const exportReport = () => {
+    const reportData = {
+      user: user.name,
+      period: 'January 2025',
+      totalEmissions: Math.round(totalEmissions * 10) / 10,
+      categories: categoryData,
+      activities: activities.length,
+      insights
+    };
+    
+    const dataStr = JSON.stringify(reportData, null, 2);
+    const dataBlob = new Blob([dataStr], { type: 'application/json' });
+    const url = URL.createObjectURL(dataBlob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `ecotrack-report-${new Date().toISOString().split('T')[0]}.json`;
+    link.click();
+    URL.revokeObjectURL(url);
+  };
 
   return (
     <div className="space-y-8">
@@ -102,7 +140,10 @@ const Reports: React.FC = () => {
             </div>
           </div>
           <div className="flex space-x-2">
-            <button className="flex items-center space-x-2 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors">
+            <button 
+              onClick={exportReport}
+              className="flex items-center space-x-2 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors"
+            >
               <Download className="w-4 h-4" />
               <span>Export PDF</span>
             </button>
@@ -193,7 +234,7 @@ const Reports: React.FC = () => {
           <div>
             <h4 className="text-lg font-semibold text-gray-800 mb-4">Emissions by Category</h4>
             <div className="space-y-4">
-              {reports[0].categories.map((category) => (
+              {categoryData.map((category) => (
                 <div key={category.name} className="space-y-2">
                   <div className="flex justify-between">
                     <span className="font-medium text-gray-700">{category.name}</span>
@@ -214,7 +255,7 @@ const Reports: React.FC = () => {
           <div>
             <h4 className="text-lg font-semibold text-gray-800 mb-4">Key Insights</h4>
             <div className="space-y-3">
-              {reports[0].insights.map((insight, index) => (
+              {insights.map((insight, index) => (
                 <div key={index} className="flex items-start space-x-3">
                   <div className="w-2 h-2 bg-blue-500 rounded-full mt-2 flex-shrink-0"></div>
                   <p className="text-gray-700">{insight}</p>

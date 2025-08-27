@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { User } from '../types';
 import { 
   User, 
   Settings, 
@@ -13,15 +14,8 @@ import {
 } from 'lucide-react';
 
 interface ProfileProps {
-  user: {
-    name: string;
-    totalPoints: number;
-    currentStreak: number;
-    badges: string[];
-    monthlyGoal: number;
-    currentEmissions: number;
-  };
-  setUser: (user: any) => void;
+  user: User;
+  setUser: (user: User) => void;
 }
 
 const Profile: React.FC<ProfileProps> = ({ user, setUser }) => {
@@ -29,9 +23,14 @@ const Profile: React.FC<ProfileProps> = ({ user, setUser }) => {
   const [editMode, setEditMode] = useState(false);
   const [formData, setFormData] = useState({
     name: user.name,
-    email: 'alex.green@email.com',
-    location: 'San Francisco, CA',
+    email: user.email,
+    location: user.location,
     monthlyGoal: user.monthlyGoal
+  });
+  const [notifications, setNotifications] = useState({
+    push: true,
+    privacy: false,
+    dataSharing: true
   });
 
   const achievements = [
@@ -52,9 +51,18 @@ const Profile: React.FC<ProfileProps> = ({ user, setUser }) => {
     setUser({
       ...user,
       name: formData.name,
+      email: formData.email,
+      location: formData.location,
       monthlyGoal: formData.monthlyGoal
     });
     setEditMode(false);
+  };
+
+  const toggleNotification = (key: keyof typeof notifications) => {
+    setNotifications({
+      ...notifications,
+      [key]: !notifications[key]
+    });
   };
 
   return (
@@ -274,7 +282,12 @@ const Profile: React.FC<ProfileProps> = ({ user, setUser }) => {
                     </div>
                   </div>
                   <label className="relative inline-flex items-center cursor-pointer">
-                    <input type="checkbox" defaultChecked className="sr-only peer" />
+                    <input 
+                      type="checkbox" 
+                      checked={notifications.push}
+                      onChange={() => toggleNotification('push')}
+                      className="sr-only peer" 
+                    />
                     <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-green-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-green-600"></div>
                   </label>
                 </div>
@@ -288,7 +301,12 @@ const Profile: React.FC<ProfileProps> = ({ user, setUser }) => {
                     </div>
                   </div>
                   <label className="relative inline-flex items-center cursor-pointer">
-                    <input type="checkbox" className="sr-only peer" />
+                    <input 
+                      type="checkbox" 
+                      checked={notifications.privacy}
+                      onChange={() => toggleNotification('privacy')}
+                      className="sr-only peer" 
+                    />
                     <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-green-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-green-600"></div>
                   </label>
                 </div>
@@ -302,7 +320,12 @@ const Profile: React.FC<ProfileProps> = ({ user, setUser }) => {
                     </div>
                   </div>
                   <label className="relative inline-flex items-center cursor-pointer">
-                    <input type="checkbox" defaultChecked className="sr-only peer" />
+                    <input 
+                      type="checkbox" 
+                      checked={notifications.dataSharing}
+                      onChange={() => toggleNotification('dataSharing')}
+                      className="sr-only peer" 
+                    />
                     <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-green-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-green-600"></div>
                   </label>
                 </div>

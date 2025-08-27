@@ -1,63 +1,31 @@
 import React, { useState } from 'react';
+import { Goal, User } from '../types';
+import { generateId } from '../utils/calculations';
 import { Target, TrendingDown, Award, CheckCircle, AlertCircle, Plus } from 'lucide-react';
 
 interface GoalsProps {
-  user: {
-    monthlyGoal: number;
-    currentEmissions: number;
-  };
-  setUser: (user: any) => void;
+  user: User;
+  setUser: (user: User) => void;
+  goals: Goal[];
+  setGoals: (goals: Goal[]) => void;
 }
 
-const Goals: React.FC<GoalsProps> = ({ user, setUser }) => {
-  const [newGoal, setNewGoal] = useState('');
-  const [goalType, setGoalType] = useState('monthly');
+const Goals: React.FC<GoalsProps> = ({ user, setUser, goals, setGoals }) => {
+  const [newGoalForm, setNewGoalForm] = useState({
+    title: '',
+    target: '',
+    unit: 'kg CO₂',
+    type: 'reduction' as 'reduction' | 'increase',
+    deadline: ''
+  });
+  const [showForm, setShowForm] = useState(false);
 
-  const goals = [
-    {
-      id: 1,
-      title: 'Monthly Carbon Budget',
-      target: user.monthlyGoal,
-      current: user.currentEmissions,
-      unit: 'kg CO₂',
-      type: 'reduction',
-      deadline: '2025-01-31',
-      status: 'in-progress',
-      progress: (user.currentEmissions / user.monthlyGoal) * 100
-    },
-    {
-      id: 2,
-      title: 'Public Transport Usage',
-      target: 20,
-      current: 14,
-      unit: 'trips',
-      type: 'increase',
-      deadline: '2025-01-31',
-      status: 'in-progress',
-      progress: (14 / 20) * 100
-    },
-    {
-      id: 3,
-      title: 'Renewable Energy',
-      target: 80,
-      current: 65,
-      unit: '% of total',
-      type: 'increase',
-      deadline: '2025-03-31',
-      status: 'in-progress',
-      progress: (65 / 80) * 100
-    },
-    {
-      id: 4,
-      title: 'Waste Reduction',
-      target: 10,
-      current: 8,
-      unit: 'kg/month',
-      type: 'reduction',
-      deadline: '2025-02-28',
-      status: 'completed',
-      progress: 100
-    }
+  const goalTemplates = [
+    { title: 'Monthly Carbon Budget', unit: 'kg CO₂', type: 'reduction' as const },
+    { title: 'Public Transport Usage', unit: 'trips', type: 'increase' as const },
+    { title: 'Renewable Energy Usage', unit: '% of total', type: 'increase' as const },
+    { title: 'Waste Reduction', unit: 'kg/month', type: 'reduction' as const },
+    { title: 'Plant-based Meals', unit: 'meals/week', type: 'increase' as const }
   ];
 
   const achievements = [
@@ -97,6 +65,46 @@ const Goals: React.FC<GoalsProps> = ({ user, setUser }) => {
     }
   };
 
+  const handleCreateGoal = (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    if (!newGoalForm.title || !newGoalForm.target || !newGoalForm.deadline) return;
+    
+    const newGoal: Goal = {
+      id: generateId(),
+      title: newGoalForm.title,
+      target: parseFloat(newGoalForm.target),
+      current: 0,
+      unit: newGoalForm.unit,
+      type: newGoalForm.type,
+      deadline: newGoalForm.deadline,
+      status: 'in-progress',
+      progress: 0
+    };
+    
+    setGoals([...goals, newGoal]);
+    setNewGoalForm({
+      title: '',
+      target: '',
+      unit: 'kg CO₂',
+      type: 'reduction',
+      deadline: ''
+    });
+    setShowForm(false);
+  };
+
+  const updateGoalProgress = (goalId: string, newCurrent: number) => {
+    setGoals(goals.map(goal => {
+      if (goal.id === goalId) {
+        const progress = (newCurrent / goal.target) * 100;
+        const status = progress >= 100 ? 'completed' : 
+                      progress > 80 ? 'at-risk' : 'in-progress';
+        return { ...goal, current: newCurrent, progress, status };
+      }
+      return goal;
+    }));
+  };
+
   return (
     <div className="space-y-8">
       {/* Header */}
@@ -120,7 +128,7 @@ const Goals: React.FC<GoalsProps> = ({ user, setUser }) => {
       {/* Create New Goal */}
       <div className="bg-white p-6 rounded-xl shadow-lg border border-gray-100">
         <div className="flex items-center space-x-3 mb-6">
-          <div className="p-2 bg-green-100 rounded-lg">
+          <div className="flex items-center space-x-3">
             <Plus className="w-5 h-5 text-green-600" />
           </div>
           <h3 className="text-xl font-semibold text-gray-800">Set New Goal</h3>
@@ -188,6 +196,23 @@ const Goals: React.FC<GoalsProps> = ({ user, setUser }) => {
                       {goal.current} / {goal.target}
                     </div>
                     <div className="text-sm text-gray-500">{goal.unit}</div>
+                    <div className="mt-2">
+                      <input
+                        type="number"
+                        step="0.1"
+                        placeholder="Update progress"
+                        className="w-24 p-1 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-green-500"
+                        onKeyPress={(e) => {
+                          if (e.key === 'Enter') {
+                            const value = parseFloat((e.target as HTMLInputElement).value);
+                            if (!isNaN(value)) {
+                              updateGoalProgress(goal.id, value);
+                              (e.target as HTMLInputElement).value = '';
+                            }
+                          }
+                        }}
+                      />
+                    </div>
                   </div>
                 </div>
                 
@@ -219,29 +244,98 @@ const Goals: React.FC<GoalsProps> = ({ user, setUser }) => {
         <div className="p-6 border-b border-gray-100">
           <div className="flex items-center space-x-3">
             <Award className="w-6 h-6 text-amber-600" />
-            <h3 className="text-xl font-semibold text-gray-800">Recent Achievements</h3>
-          </div>
-          <p className="text-gray-600 mt-1">Celebrate your sustainability milestones</p>
-        </div>
-        <div className="divide-y divide-gray-100">
-          {achievements.map((achievement, index) => (
-            <div key={index} className="p-6 hover:bg-gray-50 transition-colors">
-              <div className="flex items-center space-x-4">
-                <div className="text-3xl">{achievement.icon}</div>
-                <div className="flex-1">
-                  <h4 className="text-lg font-semibold text-gray-800">{achievement.title}</h4>
-                  <p className="text-gray-600">{achievement.description}</p>
-                  <p className="text-sm text-gray-500 mt-1">
-                    Earned on {new Date(achievement.date).toLocaleDateString()}
-                  </p>
-                </div>
-                <div className="p-2 bg-amber-100 rounded-lg">
-                  <Award className="w-5 h-5 text-amber-600" />
+        {showForm && (
+          <form onSubmit={handleCreateGoal} className="space-y-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Goal Title</label>
+                <input
+                  type="text"
+                  value={newGoalForm.title}
+                  onChange={(e) => setNewGoalForm({ ...newGoalForm, title: e.target.value })}
+                  placeholder="Enter goal title"
+                  className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500"
+                  required
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Target Value</label>
+                <input 
+                  type="number"
+                  value={newGoalForm.target}
+                  onChange={(e) => setNewGoalForm({ ...newGoalForm, target: e.target.value })}
+                  placeholder="Enter target"
+                  className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500"
+                  required
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Unit</label>
+                <select
+                  value={newGoalForm.unit}
+                  onChange={(e) => setNewGoalForm({ ...newGoalForm, unit: e.target.value })}
+                  className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500"
+                >
+                  <option value="kg CO₂">kg CO₂</option>
+                  <option value="trips">trips</option>
+                  <option value="% of total">% of total</option>
+                  <option value="kg/month">kg/month</option>
+                  <option value="meals/week">meals/week</option>
+                </select>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Goal Type</label>
+                <select
+                  value={newGoalForm.type}
+                  onChange={(e) => setNewGoalForm({ ...newGoalForm, type: e.target.value as 'reduction' | 'increase' })}
+                  className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500"
+                >
+                  <option value="reduction">Reduce</option>
+                  <option value="increase">Increase</option>
+                </select>
+              </div>
+              <div className="md:col-span-2">
+                <label className="block text-sm font-medium text-gray-700 mb-2">Deadline</label>
+                <input
+                  type="date"
+                  value={newGoalForm.deadline}
+                  onChange={(e) => setNewGoalForm({ ...newGoalForm, deadline: e.target.value })}
+                  className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500"
+                  required
+                />
+              </div>
+            </div>
+            
+            <div className="flex space-x-4">
+              <button 
+                type="submit"
+                className="bg-gradient-to-r from-green-600 to-green-700 text-white py-2 px-6 rounded-lg font-medium hover:from-green-700 hover:to-green-800 transition-all duration-200"
+              >
+                Create Goal
+              </button>
+              <div className="text-sm text-gray-500 space-y-1">
+                <p>Quick templates:</p>
+                <div className="flex flex-wrap gap-2">
+                  {goalTemplates.map((template) => (
+                    <button
+                      key={template.title}
+                      type="button"
+                      onClick={() => setNewGoalForm({
+                        ...newGoalForm,
+                        title: template.title,
+                        unit: template.unit,
+                        type: template.type
+                      })}
+                      className="text-xs bg-gray-100 hover:bg-gray-200 px-2 py-1 rounded transition-colors"
+                    >
+                      {template.title}
+                    </button>
+                  ))}
                 </div>
               </div>
             </div>
-          ))}
-        </div>
+          </form>
+        )}
       </div>
     </div>
   );

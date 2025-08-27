@@ -1,4 +1,6 @@
 import React, { useState } from 'react';
+import { User, Challenge, Post } from '../types';
+import { useLocalStorage } from '../hooks/useLocalStorage';
 import { 
   Users, 
   Trophy, 
@@ -13,14 +15,82 @@ import {
 } from 'lucide-react';
 
 interface CommunityProps {
-  user: {
-    totalPoints: number;
-    name: string;
-  };
+  user: User;
 }
 
 const Community: React.FC<CommunityProps> = ({ user }) => {
   const [activeTab, setActiveTab] = useState('leaderboard');
+  const [challenges, setChallenges] = useLocalStorage<Challenge[]>('ecotrack-challenges', [
+    {
+      id: '1',
+      title: 'Car-Free Week Challenge',
+      description: 'Use only public transport, cycling, or walking for 7 days',
+      participants: 234,
+      timeLeft: '5 days left',
+      reward: 500,
+      difficulty: 'Medium',
+      status: 'active',
+      userParticipating: false
+    },
+    {
+      id: '2',
+      title: 'Zero Waste Weekend',
+      description: 'Generate zero waste during the weekend',
+      participants: 156,
+      timeLeft: '2 days left',
+      reward: 300,
+      difficulty: 'Hard',
+      status: 'active',
+      userParticipating: true
+    },
+    {
+      id: '3',
+      title: 'Plant-Based Month',
+      description: 'Eat only plant-based meals for 30 days',
+      participants: 89,
+      timeLeft: 'Starting soon',
+      reward: 800,
+      difficulty: 'Hard',
+      status: 'upcoming',
+      userParticipating: false
+    }
+  ]);
+  
+  const [posts, setPosts] = useLocalStorage<Post[]>('ecotrack-posts', [
+    {
+      id: '1',
+      author: 'Emma Watson',
+      avatar: 'EW',
+      time: '2 hours ago',
+      content: 'Just completed my first week of cycling to work! Saved 15kg CO₂ and feeling great! 🚴‍♀️💚',
+      likes: 24,
+      comments: 8,
+      image: true,
+      userLiked: false
+    },
+    {
+      id: '2',
+      author: 'Green Living Tips',
+      avatar: 'GL',
+      time: '4 hours ago',
+      content: 'Did you know? Switching to LED bulbs can reduce your home energy consumption by up to 75%! 💡 What energy-saving tips do you have?',
+      likes: 42,
+      comments: 15,
+      image: false,
+      userLiked: true
+    },
+    {
+      id: '3',
+      author: 'Mike Johnson',
+      avatar: 'MJ',
+      time: '6 hours ago',
+      content: 'Meal prep Sunday with locally sourced vegetables! 🥬🥕 Reducing food miles while eating healthy. Anyone else doing local food challenges?',
+      likes: 18,
+      comments: 6,
+      image: true,
+      userLiked: false
+    }
+  ]);
 
   const leaderboard = [
     { rank: 1, name: 'Emma Watson', points: 4850, reduction: 28, avatar: 'EW' },
@@ -32,72 +102,6 @@ const Community: React.FC<CommunityProps> = ({ user }) => {
     { rank: 7, name: 'Tom Wilson', points: 1900, reduction: 10, avatar: 'TW' }
   ];
 
-  const challenges = [
-    {
-      id: 1,
-      title: 'Car-Free Week Challenge',
-      description: 'Use only public transport, cycling, or walking for 7 days',
-      participants: 234,
-      timeLeft: '5 days left',
-      reward: 500,
-      difficulty: 'Medium',
-      status: 'active'
-    },
-    {
-      id: 2,
-      title: 'Zero Waste Weekend',
-      description: 'Generate zero waste during the weekend',
-      participants: 156,
-      timeLeft: '2 days left',
-      reward: 300,
-      difficulty: 'Hard',
-      status: 'active'
-    },
-    {
-      id: 3,
-      title: 'Plant-Based Month',
-      description: 'Eat only plant-based meals for 30 days',
-      participants: 89,
-      timeLeft: 'Starting soon',
-      reward: 800,
-      difficulty: 'Hard',
-      status: 'upcoming'
-    }
-  ];
-
-  const posts = [
-    {
-      id: 1,
-      author: 'Emma Watson',
-      avatar: 'EW',
-      time: '2 hours ago',
-      content: 'Just completed my first week of cycling to work! Saved 15kg CO₂ and feeling great! 🚴‍♀️💚',
-      likes: 24,
-      comments: 8,
-      image: true
-    },
-    {
-      id: 2,
-      author: 'Green Living Tips',
-      avatar: 'GL',
-      time: '4 hours ago',
-      content: 'Did you know? Switching to LED bulbs can reduce your home energy consumption by up to 75%! 💡 What energy-saving tips do you have?',
-      likes: 42,
-      comments: 15,
-      image: false
-    },
-    {
-      id: 3,
-      author: 'Mike Johnson',
-      avatar: 'MJ',
-      time: '6 hours ago',
-      content: 'Meal prep Sunday with locally sourced vegetables! 🥬🥕 Reducing food miles while eating healthy. Anyone else doing local food challenges?',
-      likes: 18,
-      comments: 6,
-      image: true
-    }
-  ];
-
   const getDifficultyColor = (difficulty: string) => {
     switch (difficulty) {
       case 'Easy': return 'text-green-600 bg-green-100';
@@ -105,6 +109,32 @@ const Community: React.FC<CommunityProps> = ({ user }) => {
       case 'Hard': return 'text-red-600 bg-red-100';
       default: return 'text-gray-600 bg-gray-100';
     }
+  };
+
+  const joinChallenge = (challengeId: string) => {
+    setChallenges(challenges.map(challenge => 
+      challenge.id === challengeId 
+        ? { 
+            ...challenge, 
+            userParticipating: !challenge.userParticipating,
+            participants: challenge.userParticipating 
+              ? challenge.participants - 1 
+              : challenge.participants + 1
+          }
+        : challenge
+    ));
+  };
+
+  const toggleLike = (postId: string) => {
+    setPosts(posts.map(post => 
+      post.id === postId 
+        ? { 
+            ...post, 
+            userLiked: !post.userLiked,
+            likes: post.userLiked ? post.likes - 1 : post.likes + 1
+          }
+        : post
+    ));
   };
 
   return (
@@ -236,8 +266,16 @@ const Community: React.FC<CommunityProps> = ({ user }) => {
                       </div>
                     </div>
                   </div>
-                  <button className="w-full sm:w-auto bg-gradient-to-r from-green-600 to-green-700 text-white py-2 px-6 rounded-lg font-medium hover:from-green-700 hover:to-green-800 transition-all duration-200 shadow-lg">
-                    {challenge.status === 'active' ? 'Join Challenge' : 'Register Interest'}
+                  <button 
+                    onClick={() => joinChallenge(challenge.id)}
+                    className={`w-full sm:w-auto py-2 px-6 rounded-lg font-medium transition-all duration-200 shadow-lg ${
+                      challenge.userParticipating
+                        ? 'bg-red-600 hover:bg-red-700 text-white'
+                        : 'bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-white'
+                    }`}
+                  >
+                    {challenge.userParticipating ? 'Leave Challenge' : 
+                     challenge.status === 'active' ? 'Join Challenge' : 'Register Interest'}
                   </button>
                 </div>
               ))}
@@ -267,7 +305,12 @@ const Community: React.FC<CommunityProps> = ({ user }) => {
                         </div>
                       )}
                       <div className="flex items-center space-x-6">
-                        <button className="flex items-center space-x-1 text-gray-500 hover:text-red-500 transition-colors">
+                        <button 
+                          onClick={() => toggleLike(post.id)}
+                          className={`flex items-center space-x-1 transition-colors ${
+                            post.userLiked ? 'text-red-500' : 'text-gray-500 hover:text-red-500'
+                          }`}
+                        >
                           <Heart className="w-5 h-5" />
                           <span>{post.likes}</span>
                         </button>

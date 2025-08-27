@@ -1,14 +1,42 @@
 import React from 'react';
+import { Activity } from '../types';
 
-const EmissionChart: React.FC = () => {
-  const data = [
-    { month: 'Jan', emissions: 420 },
-    { month: 'Feb', emissions: 380 },
-    { month: 'Mar', emissions: 350 },
-    { month: 'Apr', emissions: 340 },
-    { month: 'May', emissions: 330 },
-    { month: 'Jun', emissions: 320 }
-  ];
+interface EmissionChartProps {
+  activities: Activity[];
+}
+
+const EmissionChart: React.FC<EmissionChartProps> = ({ activities }) => {
+  // Generate last 6 months of data
+  const generateMonthlyData = () => {
+    const months = [];
+    const now = new Date();
+    
+    for (let i = 5; i >= 0; i--) {
+      const date = new Date(now.getFullYear(), now.getMonth() - i, 1);
+      const monthName = date.toLocaleDateString('en-US', { month: 'short' });
+      
+      // Calculate emissions for this month from activities
+      const monthEmissions = activities
+        .filter(activity => {
+          const activityDate = new Date(activity.timestamp);
+          return activityDate.getMonth() === date.getMonth() && 
+                 activityDate.getFullYear() === date.getFullYear();
+        })
+        .reduce((sum, activity) => sum + activity.emissions, 0);
+      
+      // Add some baseline emissions for demo purposes
+      const baselineEmissions = 300 + Math.random() * 100;
+      
+      months.push({
+        month: monthName,
+        emissions: Math.round((monthEmissions + baselineEmissions) * 10) / 10
+      });
+    }
+    
+    return months;
+  };
+
+  const data = generateMonthlyData();
 
   const maxEmissions = Math.max(...data.map(d => d.emissions));
   const chartHeight = 200;

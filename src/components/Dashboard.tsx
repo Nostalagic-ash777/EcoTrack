@@ -1,4 +1,5 @@
 import React from 'react';
+import { User, Activity } from '../types';
 import { 
   TrendingDown, 
   TrendingUp, 
@@ -15,23 +16,54 @@ import EmissionChart from './EmissionChart';
 import CategoryBreakdown from './CategoryBreakdown';
 
 interface DashboardProps {
-  user: {
-    name: string;
-    totalPoints: number;
-    currentStreak: number;
-    badges: string[];
-    monthlyGoal: number;
-    currentEmissions: number;
-  };
+  user: User;
+  activities: Activity[];
 }
 
-const Dashboard: React.FC<DashboardProps> = ({ user }) => {
+const Dashboard: React.FC<DashboardProps> = ({ user, activities }) => {
+  // Calculate real emissions from activities
+  const calculateCategoryEmissions = (category: string) => {
+    return activities
+      .filter(activity => activity.category === category)
+      .reduce((sum, activity) => sum + activity.emissions, 0);
+  };
+
   const categories = [
-    { name: 'Transportation', value: 145, icon: Car, color: 'bg-blue-500', change: -8 },
-    { name: 'Energy', value: 89, icon: Zap, color: 'bg-yellow-500', change: -12 },
-    { name: 'Food', value: 67, icon: UtensilsCrossed, color: 'bg-green-500', change: +5 },
-    { name: 'Waste', value: 12, icon: Trash2, color: 'bg-red-500', change: -15 },
-    { name: 'Digital', value: 7, icon: Smartphone, color: 'bg-purple-500', change: +2 }
+    { 
+      name: 'Transportation', 
+      value: Math.round(calculateCategoryEmissions('transportation') * 10) / 10, 
+      icon: Car, 
+      color: 'bg-blue-500', 
+      change: -8 
+    },
+    { 
+      name: 'Energy', 
+      value: Math.round(calculateCategoryEmissions('energy') * 10) / 10, 
+      icon: Zap, 
+      color: 'bg-yellow-500', 
+      change: -12 
+    },
+    { 
+      name: 'Food', 
+      value: Math.round(calculateCategoryEmissions('food') * 10) / 10, 
+      icon: UtensilsCrossed, 
+      color: 'bg-green-500', 
+      change: +5 
+    },
+    { 
+      name: 'Waste', 
+      value: Math.round(calculateCategoryEmissions('waste') * 10) / 10, 
+      icon: Trash2, 
+      color: 'bg-red-500', 
+      change: -15 
+    },
+    { 
+      name: 'Digital', 
+      value: Math.round(calculateCategoryEmissions('digital') * 10) / 10, 
+      icon: Smartphone, 
+      color: 'bg-purple-500', 
+      change: +2 
+    }
   ];
 
   const totalEmissions = categories.reduce((sum, cat) => sum + cat.value, 0);
@@ -125,7 +157,7 @@ const Dashboard: React.FC<DashboardProps> = ({ user }) => {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         <div className="bg-white p-6 rounded-xl shadow-lg border border-gray-100">
           <h3 className="text-xl font-semibold text-gray-800 mb-6">Emission Trends</h3>
-          <EmissionChart />
+          <EmissionChart activities={activities} />
         </div>
 
         <div className="bg-white p-6 rounded-xl shadow-lg border border-gray-100">
