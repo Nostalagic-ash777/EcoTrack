@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { UserInput } from '../types';
+import { UserIcon } from '../types';
 import { 
   User as UserIcon, //Renamed to UserIcon 
   Settings, 
@@ -14,18 +14,18 @@ import {
 } from 'lucide-react';
 
 interface ProfileProps {
-  user: UserInput;
+  user: UserIcon;
   setUser: (user: User) => void;
 }
 
-const Profile: React.FC<ProfileProps> = ({ userInput, setUser }) => {
+const Profile: React.FC<ProfileProps> = ({ userIcon, setUser }) => {
   const [activeSection, setActiveSection] = useState('profile');
   const [editMode, setEditMode] = useState(false);
   const [formData, setFormData] = useState({
-    name: userInput.name,
-    email: userInput.email,
-    location: userInput.location,
-    monthlyGoal: userInput.monthlyGoal
+    name: userIcon.name,
+    email: userIcon.email,
+    location: userIcon.location,
+    monthlyGoal: userIcon.monthlyGoal
   });
   const [notifications, setNotifications] = useState({
     push: true,
@@ -34,11 +34,11 @@ const Profile: React.FC<ProfileProps> = ({ userInput, setUser }) => {
   });
 
   const achievements = [
-    { name: 'Early Adopter', date: '2024-12-01', icon: '🌟' },
-    { name: 'Eco Warrior', date: '2024-12-15', icon: '⚔️' },
-    { name: 'Carbon Saver', date: '2025-01-05', icon: '💚' },
-    { name: 'Green Streak', date: '2025-01-10', icon: '🔥' },
-    { name: 'Community Helper', date: '2025-01-15', icon: '🤝' }
+    { name: 'Early Adopter', date: '2025-08-31', icon: '🌟' },
+    { name: 'Eco Warrior', date: '2025-10-15', icon: '⚔️' },
+    { name: 'Carbon Saver', date: '2025-12-05', icon: '💚' },
+    { name: 'Green Streak', date: '2026-01-10', icon: '🔥' },
+    { name: 'Community Helper', date: '2025-06-15', icon: '🤝' }
   ];
 
   const stats = [
@@ -49,7 +49,7 @@ const Profile: React.FC<ProfileProps> = ({ userInput, setUser }) => {
 
   const handleSave = () => {
     setUser({
-      ...user,
+      ...userIcon,
       name: formData.name,
       email: formData.email,
       location: formData.location,
@@ -75,7 +75,7 @@ const Profile: React.FC<ProfileProps> = ({ userInput, setUser }) => {
               <UserIcon className="w-10 h-10 text-white" />
             </div>
             <div>
-              <h2 className="text-3xl font-bold mb-2">{userInput.name}</h2>
+              <h2 className="text-3xl font-bold mb-2">{userIcon.name}</h2>
               <div className="flex items-center space-x-6 text-green-100">
                 <div className="flex items-center space-x-2">
                   <Award className="w-5 h-5" />
@@ -102,7 +102,7 @@ const Profile: React.FC<ProfileProps> = ({ userInput, setUser }) => {
       <div className="bg-white rounded-xl shadow-lg border border-gray-100 overflow-hidden">
         <div className="flex border-b border-gray-200">
           {[
-            { id: 'profile', label: 'Profile', icon: UserInput },
+            { id: 'profile', label: 'Profile', icon: UserIcon },
             { id: 'achievements', label: 'Achievements', icon: Award },
             { id: 'settings', label: 'Settings', icon: Settings }
           ].map((tab) => {
