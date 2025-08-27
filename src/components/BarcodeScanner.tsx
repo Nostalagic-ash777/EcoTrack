@@ -129,4 +129,4 @@ const BarcodeScanner: React.FC<BarcodeScannerProps> = ({ onScanResult }) => {
   );
 };
 
-export default BarcodeScanner;</parameter>
+export default BarcodeScanner;
