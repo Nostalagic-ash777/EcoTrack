@@ -88,4 +88,4 @@ const ProductResult: React.FC<ProductResultProps> = ({ product, onAddToLog }) =>
   );
 };
 
-export default ProductResult;</parameter>
+export default ProductResult;
