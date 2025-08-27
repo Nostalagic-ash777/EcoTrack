@@ -14,11 +14,11 @@ import {
 } from 'lucide-react';
 
 interface ProfileProps {
-  user: User;
+  user: UserInput;
   setUser: (user: User) => void;
 }
 
-const Profile: React.FC<ProfileProps> = ({ user, setUser }) => {
+const Profile: React.FC<ProfileProps> = ({ userInput, setUser }) => {
   const [activeSection, setActiveSection] = useState('profile');
   const [editMode, setEditMode] = useState(false);
   const [formData, setFormData] = useState({
