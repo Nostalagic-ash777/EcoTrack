@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { UserIcon } from '../types';
+import { UserIput } from '../types';
 import { 
   User as UserIcon, //Renamed to UserIcon 
   Settings, 
