@@ -61,4 +61,4 @@ export interface Post {
   comments: number;
   image: boolean;
   userLiked: boolean;
-}</parameter>
+}
