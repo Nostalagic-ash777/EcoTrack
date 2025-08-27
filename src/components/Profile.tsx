@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { User } from '../types';
 import { 
-  User as UserIcon //Renamed to UserIcon 
+  User as UserIcon, //Renamed to UserIcon 
   Settings, 
   Bell, 
   Shield, 
