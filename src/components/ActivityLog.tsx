@@ -476,3 +476,20 @@ const ActivityLog: React.FC<ActivityLogProps> = ({ activities, setActivities, us
 };
 
 export default ActivityLog;
+// When a new activity is logged:
+function onNewActivity(loggedEmissionAmount: number) {
+  setGoals((prevGoals) =>
+    prevGoals.map(goal => {
+      if (goal.type === 'reduction') {
+        const newCurrent = goal.current + loggedEmissionAmount;
+        return {
+          ...goal,
+          current: newCurrent,
+          progress: newCurrent / goal.target,
+          status: newCurrent >= goal.target ? 'completed' : 'in-progress'
+        };
+      }
+      return goal;
+    })
+  );
+}
