@@ -1,3 +1,4 @@
+import { User } from '../types';
 export interface User {
   id: string;
   name: string;
